@@ -1,76 +1,70 @@
 package com.myob.reference;
 
-import org.junit.Before;
+import org.hamcrest.Description;
+import org.hamcrest.Matcher;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 import static java.math.BigDecimal.ONE;
-import static java.math.BigDecimal.ZERO;
-import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.*;
 
 
-@RunWith(MockitoJUnitRunner.class)
 public class LedgerTest {
 
-    private final BigDecimal TWO = new BigDecimal(2);
+    private final static String VALID_INPUT = "1 + 1";
+    private final static String INVALID_INPUT = "1 = 2";
 
-    private Ledger ledger;
+    private final static BigDecimal TWO = new BigDecimal(2);
 
+    private final Statement VALID_STATEMENT = new TwoNumberStatement(ONE, Operations::add, ONE);
 
-    @Mock
-    private Calculator calculator;
-
-    @Before
-    public void setUp() {
-        ledger = new Ledger(calculator);
-    }
-
-    @Test
-    public void shouldCalculateAddition() {
-        when(calculator.add(any(BigDecimal.class), any(BigDecimal.class))).thenReturn(TWO);
-
-        assertThat(ledger.calculate("1 + 1"), is(TWO));
-
-        verify(calculator, times(1)).add(any(), any());
-    }
+    private final StatementResult EXPECTED_VALID_RESULT = new StatementResult(Optional.of(VALID_STATEMENT), TWO);
+    private final StatementResult EXPECTED_INVALID_RESULT = new StatementResult(Optional.empty(), null);
 
 
     @Test
-    public void shouldCalculateSubtraction() {
+    public void shouldHandleValidInput() {
 
-        when(calculator.subtract(any(BigDecimal.class), any(BigDecimal.class))).thenReturn(ZERO);
+        Ledger ledger = new Ledger();
+        StatementResult result = ledger.record(Optional.of(VALID_STATEMENT));
 
-        assertThat(ledger.calculate("1 - 1"), is(ZERO));
-
-        verify(calculator, times(1)).subtract(any(), any());
-
-
+        assertThat(result, isResult(EXPECTED_VALID_RESULT));
     }
 
     @Test
-    public void shouldCalculateMultiplication() {
+    public void shouldHandleInvalidInput() {
+        Ledger ledger = new Ledger();
+        StatementResult result = ledger.record(Optional.empty());
 
-        when(calculator.multiply(any(BigDecimal.class), any(BigDecimal.class))).thenReturn(ONE);
-
-        assertThat(ledger.calculate("1 * 1"), is(ONE));
-
-        verify(calculator, times(1)).multiply(any(), any());
+        assertThat(result, isResult(EXPECTED_INVALID_RESULT));
     }
 
-    @Test
-    public void shouldCalculateDivision() {
-        when(calculator.divide(any(BigDecimal.class), any(BigDecimal.class))).thenReturn(ONE);
 
-        assertThat(ledger.calculate("1 / 1"), is(ONE));
 
-        verify(calculator, times(1)).divide(any(), any());
+    private Matcher<StatementResult> isResult(StatementResult result) {
+        return new TypeSafeMatcher<StatementResult>() {
+            @Override
+            public void describeTo(final Description description) {
+                description.appendText("expected ").appendValue(result.getStatement().toString() + " : " + result.getOutcome());
+            }
+
+            @Override
+            protected void describeMismatchSafely(final StatementResult item, final
+            Description mismatchDescription) {
+                mismatchDescription.appendText(" was ").appendValue(item.getStatement().toString() + " : " + result.getOutcome());
+            }
+
+            @Override
+            protected boolean matchesSafely(final StatementResult item) {
+                return result.getStatement().equals(item.getStatement())
+                    && ((result.getOutcome() == null && item.getOutcome() == null)
+                        || result.getOutcome().equals(item.getOutcome()));
+            }
+        };
     }
+
 
 }

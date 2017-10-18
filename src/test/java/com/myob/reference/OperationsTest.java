@@ -8,40 +8,46 @@ import java.math.BigDecimal;
 import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.ZERO;
 import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertThat;
 
-public class CalculatorTest {
+public class OperationsTest {
 
     private final BigDecimal TWO = new BigDecimal(2);
 
 
-    private Calculator calculator;
+    private Operations operations;
 
     @Before
     public void setUp() {
-        this.calculator = new Calculator();
+        this.operations = new Operations();
     }
 
     @Test
     public void shouldAddCorrectly() {
-        assertThat(calculator.add(ONE, ONE), is(TWO));
+        assertThat(operations.add(ONE, ONE), is(TWO));
     }
 
 
     @Test
     public void shouldSubtractCorrectly() {
-        assertThat(calculator.subtract(ONE, ONE), is(ZERO));
+        assertThat(operations.subtract(ONE, ONE), is(ZERO));
     }
 
 
     @Test
     public void shouldMultiplyCorrectly() {
-        assertThat(calculator.multiply(ONE, ONE), is(ONE));
+        assertThat(operations.multiply(ONE, ONE), is(ONE));
 
     }
 
     @Test
     public void shouldDivideCorrectly() {
-        assertThat(calculator.divide(ONE, ONE), is(ONE));
+        assertThat(operations.divide(ONE, ONE), is(ONE));
     }
+
+
 }
+
+
+

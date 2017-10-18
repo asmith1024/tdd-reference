@@ -1,8 +1,7 @@
 package com.myob.reference;
 
-import java.math.BigDecimal;
 
+@FunctionalInterface
 public interface Statement {
-
-    public BigDecimal execute(BigDecimal left, BigDecimal right);
+    StatementResult execute();
 }
